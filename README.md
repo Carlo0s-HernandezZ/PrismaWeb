@@ -1,8 +1,91 @@
 ## 🏗️ Arquitectura del Sistema
 
 El sistema sigue una arquitectura moderna, distribuida y basada en microservicios, optimizada para el procesamiento asíncrono y la integración con Inteligencia Artificial.
+sequenceDiagram
+    autonumber
+    actor Usuario
+    participant App as App Cliente<br/>(KMP / Swift)
+    participant Backend as Backend<br/>(Kotlin REST API)
+    participant BD as Base de Datos
+
+   Usuario->>App: Ingresa email y contraseña
+    App->>Backend: POST /auth/login con email y password
+    Backend->>BD: Consulta usuario por email
+    BD-->>Backend: Datos del usuario y hash
+    
+ *   alt credenciales incorrectas
+        Backend-->>App: HTTP 401 no autorizado
+        App->>Usuario: Muestra "Usuario o contraseña incorrectos"
+    else credenciales correctas
+        Backend-->>App: HTTP 200 estado PENDING_2FA con temp_token
+        App-->>Usuario: Solicita código 2FA
+    end
+
+  *  Usuario->>App: Introduce código TOTP de 6 dígitos
+    App->>Backend: POST /auth/verify-2fa con código y temp_token
+    Backend->>BD: Consulta semilla 2FA del usuario
+    BD-->>Backend: Semilla criptográfica
+
+   * alt código inválido o expirado
+        Backend-->>App: HTTP 400 código incorrecto
+        App->>Usuario: Muestra "Código de autenticación inválido"
+    else código válido
+        Backend-->>App: HTTP 200 access_token y refresh_token
+        Note over App: Guarda tokens en Keychain o KeyStore
+        App->>Usuario: Redirige al dashboard de tarjetas
+    end
+
 
 ### 🗺️ Diagrama de Componentes y Flujo
+
+erDiagram
+    USERS ||--o{ USER_INCOMES : deposits
+    USERS ||--o{ CREDIT_CARDS : owns
+    USERS ||--o{ FINANCIAL_ADVICES : receives
+    CREDIT_CARDS ||--o{ TRANSACTIONS : generates
+
+   * USERS {
+        bigint id PK
+        string email UK
+        string password_hash
+        string secret_2fa
+        string region
+        timestamp created_at
+    }
+
+  *  USER_INCOMES {
+        bigint id PK
+        bigint user_id FK
+        decimal amount_net
+        boolean is_audited_payroll
+        timestamp recorded_at
+    }
+
+   * CREDIT_CARDS {
+        bigint id PK
+        bigint user_id FK
+        string bank_name
+        string card_alias
+        string last_four_digits
+    }
+
+   * FINANCIAL_ADVICES {
+        bigint id PK
+        bigint user_id FK
+        text advice_text
+        string advice_hash
+        timestamp updated_at
+    }
+
+   * TRANSACTIONS {
+        bigint id PK
+        bigint card_id FK
+        date transaction_date
+        string description
+        decimal amount_mxn
+        string original_currency
+    }
+
 
 ### 📦 Capas y Componentes Clave
 
