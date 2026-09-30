@@ -1,6 +1,8 @@
 ## 🏗️ Arquitectura del Sistema
 
 El sistema sigue una arquitectura moderna, distribuida y basada en microservicios, optimizada para el procesamiento asíncrono y la integración con Inteligencia Artificial.
+
+
 sequenceDiagram
     autonumber
     actor Usuario
