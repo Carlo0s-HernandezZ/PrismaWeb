@@ -6,7 +6,7 @@ El sistema sigue una arquitectura moderna, distribuida y basada en microservicio
 sequenceDiagram
     autonumber
     actor Usuario
-    participant App as App Cliente<br/>(KMP / Swift)
+    participant App as App Cliente<br/>(KMP)
     participant Backend as Backend<br/>(Kotlin REST API)
     participant BD as Base de Datos
 
